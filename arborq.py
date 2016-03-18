@@ -133,10 +133,13 @@ class ArborFetcher:
         self.xml_data = None
 
     def fetch(self):
-        r = requests.post(self.arbor_url + "traffic",
-                          params={'api_key': self.api_key},
-                          data={'query': self.query.get_query()},
-                          verify=self.verify_ssl_cert)
+        try:
+            r = requests.post(self.arbor_url + "traffic",
+                              params={'api_key': self.api_key},
+                              data={'query': self.query.get_query()},
+                              verify=self.verify_ssl_cert)
+        except requests.ConnectionError, e:
+            raise ArborFetcherError(e)
 
         if r.status_code != requests.codes.ok:
             raise ArborFetcherError(r.text)

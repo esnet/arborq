@@ -94,4 +94,11 @@ def test_toptalker_fetch(credentials):
         assert not point[ip_addr_idx].endswith(".xxx")
         assert int(point[ip_addr_idx].split(".")[-1]) < 256
         assert point[dns_name_idx] == "[DNS resolution not enabled]"
- 
+
+
+def test_fetch_connection_failure():
+    q = arborq.ArborQuery("gossip", timeperiod="1d")
+    q.add_filter("customer", 1)
+
+    with pytest.raises(arborq.ArborFetcherError):
+        arborq.ArborFetcher("https://localhost:9999/", "foobar", q).fetch()
