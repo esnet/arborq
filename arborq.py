@@ -4,10 +4,6 @@ import xml.etree.ElementTree as xml
 
 import requests
 
-# TODO:
-# support for AS inclusion like old setup, filter2
-# improve DNS resolution
-
 TIMEPERIODS = {
     '1d': 'day',
     '7d': 'week',
@@ -186,6 +182,14 @@ class TrafficParser:
         self.end = int(sample_info.get("latest_bin"))
         self.frequency = int(sample_info.get("duration"))
 
+        self.filters = self.xml.find('query').findall('filter')
+        self.filter1 = self.filters[0].get('type')
+        if len(self.filters) > 1:
+            print "filts2"
+            self.filter2 = self.filters[1].get('type')
+        else:
+            self.filter2 = None
+
         items = self.xml.findall("query-reply/item")
 
         timeseries_list = []
@@ -201,6 +205,11 @@ class TrafficParser:
             name = keys[1].get("name")
         else:
             name = item.get("name")
+
+        if self.filter2 and self.filter2.startswith("as_"):
+            # if we have an AS based report, augment the name with the ASN
+            asn = item.get("id").split("|")[1]
+            name += "|AS%s" % (asn, )
 
         raw_points = self._get_points(item)
         points = []
