@@ -1,0 +1,4 @@
+*.pyc
+venv
+tests/.cache
+.env
