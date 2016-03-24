@@ -10,7 +10,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 setup(
     name="arborq",
 
-    version="0.9.1",
+    version="0.9.2",
 
     description="A Python package to query Arbor PeakFlow devices",
     long_description=long_description,

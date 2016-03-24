@@ -270,10 +270,6 @@ class TopTalkerParser:
 
             if self.resolve_dns:
                 dns_name = self._dns_lookup(addr)
-                if self.redact:
-                    parts = ['xxx']
-                    parts.extend(dns_name.split('.')[1:])
-                    dns_name = '.'.join(parts)
             else:
                 dns_name = "[DNS resolution not enabled]"
 
