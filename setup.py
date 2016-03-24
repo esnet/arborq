@@ -35,7 +35,7 @@ setup(
 
     py_modules=["arborq"],
 
-    intall_requires=["requests"],
+    intall_requires=["requests", "pytz"],
 
     extras_require={
         "test": "pytest",

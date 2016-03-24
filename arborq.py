@@ -1,4 +1,5 @@
 import cStringIO
+import pytz
 import socket
 import xml.etree.ElementTree as xml
 
@@ -31,11 +32,13 @@ class ArborQuery(object):
         self.qtype = qtype
 
         if begin_time is not None:
-            self.begin_time = begin_time.strftime('%m/%d/%Y %H:%M:%S')
+            utc_begin = begin_time.astimezone(pytz.UTC)
+            self.begin_time = utc_begin.strftime('%m/%d/%Y %H:%M:%S')
         else:
             self.begin_time = None
         if end_time is not None:
-            self.end_time = end_time.strftime('%m/%d/%Y %H:%M:%S')
+            utc_end = end_time.astimezone(pytz.UTC)
+            self.end_time = utc_end.strftime('%m/%d/%Y %H:%M:%S')
         else:
             self.end_time = None
         self.timeperiod = timeperiod
