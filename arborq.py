@@ -81,7 +81,7 @@ class ArborQuery(object):
         xml_filter = xml.Element("filter", {'type': filter_name, 'binby': '1'})
 
         if value:
-            if not isinstance(value) == list:
+            if not isinstance(value, list):
                 value = [value]
 
             for val in value:

@@ -1,5 +1,12 @@
-init:
-	pip install -r requirements.txt
+test: init
+	venv/bin/py.test tests
 
-test:
-	py.test tests
+init:
+	if [ ! -d ./venv ]; then \
+		virtualenv --prompt="(arborq)" venv; \
+		venv/bin/pip install --upgrade pip; \
+		venv/bin/pip install -e .[test]; \
+	fi
+
+clean:
+	rm -rf ./venv
