@@ -1,16 +1,19 @@
 language: python
 python:
-  - "2.7"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-  - "3.5-dev"
-  - "nightly"
-# command to run tests
+- '2.7'
+- '3.3'
+- '3.4'
+- '3.5'
+- 3.5-dev
+- nightly
 script:
-  - make test
-  - ./venv/bin/pip install coveralls
+- make test
+- ./venv/bin/pip install coveralls
 after_success:
-  - ./venv/bin/coveralls
+- ./venv/bin/coveralls
 notifications:
-  slack: esnet:UcgwMEeTt4IEFs2OZGwFznH2
+  slack:
+    matrix:
+    - esnet:UcgwMEeTt4IEFs2OZGwFznH2
+    rooms:
+      secure: l9wscQtJpATdHBMuH/oQcG16BpfNF1ZFtDv7U7CNdh8vtvLx8HRJLPMU2FCrZfPDZFu5Bw+PjwfvZOHSFPFEgb2f0CTJhvITZA7q7+Ay2IRGlc/SzZr5AoEHNE+UMUx5dhkDHKVYHgEI1hjynJ4g1z5/m/ekuWakKeStnDXqltxb4N2DtCvy3R/NSSm1MgxlLlGIIqiOJgU0vy+GI26bV24zOgiDk0JXur0lNgkxzy4LaRYmhXxo2pfXsZVw+HztnOVdJA6rkYD9kRSfVWdCcLtN/8p2g8kTnnTFom2eTOT7UTW5X4ZjkSaJLRtIUzfCLrooIt3MA0EyHg7bnrfkw4bRq9PnD9JJfpLkeOP8yYUknMJZFBRI7Apsro/fdi9POPkzInoGr3KkqBFvaiWJ9GRe9vkQYRwuDnMjE6A0Xlf3VmY6T42Y/g2jw/ArxbUOR/BdkOWbjRIfzAX1ZuFey9tA+PGiDGc+QeK2OeKzBfBogfpi0AQH5UaqA7JgKfIVzaEdLwLOPwca/VsrxCXWGiHXg35RGSNyqhzSZXhnL8TSwn+KMAG1uzCvXsHCQvDIGfaESbZ8CzUf96t1GWgR7L4tu8TNBr+tilTzHwmlnwJmwwLfSGiRiqWISG8h3o7f54kzipMQfrEtw6IqcPWYXMwQg8D1z4QqGBa9lHhgYeY=
