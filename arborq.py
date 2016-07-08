@@ -1,3 +1,7 @@
+"""Python module to query Arbor PeakFlow SP systems.
+
+"""
+
 import cStringIO
 import pytz
 import socket
@@ -74,16 +78,16 @@ class ArborQuery(object):
 
     def add_filter(self, filter_name, value=None):
         """Add a filter to the query."""
-        filter = xml.Element("filter", {'type': filter_name, 'binby': '1'})
+        xml_filter = xml.Element("filter", {'type': filter_name, 'binby': '1'})
 
         if value:
-            if not type(value) == list:
+            if not isinstance(value) == list:
                 value = [value]
 
             for val in value:
-                filter.append(xml.Element("instance", {'value': str(val)}))
+                xml_filter.append(xml.Element("instance", {'value': str(val)}))
 
-        self.xmlquery.append(filter)
+        self.xmlquery.append(xml_filter)
 
     def get_query(self):
         """Return the XML query suitable to send to the Arbor system."""
@@ -102,19 +106,13 @@ class ArborQuery(object):
 
         return output
 
-    def get_timeperiod(self, data):
-        # Getting the arbor returned time ranges (Which can differ from
-        # the supplied time ranges esp in the end date.)
-        stime = data.find('query/time').get('start_ascii')
-        etime = data.find('query/time').get('end_ascii')
-        return {'start': stime, 'end': etime}
-
 
 class ArborFetcherError(Exception):
+    """Base class for ArborFetcher errors."""
     pass
 
 
-class ArborFetcher:
+class ArborFetcher(object):
     """Fetch data from an Arbor Peakflow system.
 
     :param arbor_url: The URL for the Pearkflow system API.
@@ -131,7 +129,11 @@ class ArborFetcher:
 
         self.xml_data = None
 
+        self.err = None
+        self.response = None
+
     def fetch(self):
+        """Perform the fetch."""
         try:
             r = requests.post(self.arbor_url + "traffic",
                               params={'api_key': self.api_key},
@@ -140,17 +142,20 @@ class ArborFetcher:
         except requests.ConnectionError, e:
             raise ArborFetcherError(e)
 
+        # pylint: disable=no-member
         if r.status_code != requests.codes.ok:
             raise ArborFetcherError(r.text)
         else:
             self.err = None
             try:
                 self.xml_data = xml.fromstring(r.text)
+            # pylint: disable=no-member
             except xml.etree.ElementTree.ParseError, e:
-                raise ArborFetcherError("Bad response: ".format(e))
+                raise ArborFetcherError("Bad response: {}".format(e))
             self.response = r
 
     def to_timeseries(self):
+        """Return results of fetch as a time series."""
         if self.xml_data is None:
             raise ArborFetcherError("No data. (Have you called .fetch()?)")
 
@@ -165,8 +170,23 @@ class ArborFetcher:
 
         return parser.parse()
 
+    def get_timeperiod(self):
+        """Get the timeperiod from the XML data.
 
-class TrafficParser:
+        Arbor often returns a different time range than the requested time range,
+        especially for the end time.
+
+        Returns a dictionary with two keys: begin_time and end_time."""
+
+        if self.xml_data is None:
+            raise ArborFetcherError("No data. (Have you called .fetch()?)")
+
+        stime = self.xml_data.find('query/time').get('start_ascii')
+        etime = self.xml_data.find('query/time').get('end_ascii')
+        return {'begin_time': stime, 'end_time': etime}
+
+
+class TrafficParser(object):
     """Parse an Arbor traffic response into a list of Pond TimeSeries
 
     :param xml_data: The ElementTree of the data from the Arbor server.
@@ -179,7 +199,15 @@ class TrafficParser:
         self.xml = xml_data
         self.timestamp_scalar = timestamp_scalar
 
+        self.begin = None
+        self.end = None
+        self.frequency = None
+        self.filters = None
+        self.filter1 = None
+        self.filter2 = None
+
     def parse(self):
+        """Parse the xml_data."""
         sample_info = self.xml.find("query-reply/sample_info")
         self.begin = int(sample_info.get("earliest_bin"))
         self.end = int(sample_info.get("latest_bin"))
@@ -188,7 +216,6 @@ class TrafficParser:
         self.filters = self.xml.find('query').findall('filter')
         self.filter1 = self.filters[0].get('type')
         if len(self.filters) > 1:
-            print "filts2"
             self.filter2 = self.filters[1].get('type')
         else:
             self.filter2 = None
@@ -203,6 +230,7 @@ class TrafficParser:
         return timeseries_list
 
     def _items_to_timeseries(self, item):
+        """Convert items to timeseries.  INTERNAL USE ONLY."""
         keys = item.findall("key")
         if len(keys) == 2:
             name = keys[1].get("name")
@@ -231,7 +259,9 @@ class TrafficParser:
             "points": points
         }
 
+    # pylint: disable=no-self-use
     def _get_points(self, item):
+        """Get data points. INTERNAL USE ONLY."""
         points = {}
         for klass in item.findall("class"):
             direction = klass.get("type")
@@ -243,7 +273,7 @@ class TrafficParser:
         return points
 
 
-class TopTalkerParser:
+class TopTalkerParser(object):
     """Parse an Arbor gossip/top talkers response into a Pond TimeSeries
 
     :param xml_data: The ElementTree of the data from the Arbor server.
@@ -262,6 +292,7 @@ class TopTalkerParser:
         self.timestamp_scalar = timestamp_scalar
 
     def parse(self):
+        """Parse the provided XML data."""
         items = self.xml.findall('query-reply/item')
 
         points = []
@@ -288,6 +319,7 @@ class TopTalkerParser:
         }
 
     def _dns_lookup(self, addr):
+        """Lookup IP address in DNS.  INTERNAL USE ONLY."""
         try:
             dns_name = socket.gethostbyaddr(addr)[0]
             if self.redact:
