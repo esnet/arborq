@@ -9,7 +9,8 @@ python:
 # command to run tests
 script:
   - make test
+  - ./venv/bin/pip install coveralls
 after_success:
-  - coveralls
+  - ./venv/bin/coveralls
 notifications:
   slack: esnet:UcgwMEeTt4IEFs2OZGwFznH2
