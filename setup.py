@@ -45,10 +45,15 @@ setup(
 
     install_requires=[
         "requests",
-        "pytz"
+        "pytz",
+        #"pypond", # XXX: TODO Fix this install, possibly by just publishing pypond
     ],
 
     extras_require={
         "test": "pytest",
     },
+
+    dependency_links=[
+        "git+https://github.com/esnet/pypond.git@master#egg=pypond",
+    ]
 )

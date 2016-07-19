@@ -9,6 +9,8 @@ import xml.etree.ElementTree as xml
 
 import requests
 
+from pypond.series import TimeSeries
+
 TIMEPERIODS = {
     '1d': 'day',
     '7d': 'week',
@@ -30,6 +32,7 @@ class ArborQuery(object):
     :param peakflow_release: release to send with the request, defaults to "5.5"
     """
 
+    # pylint: disable=too-many-arguments
     def __init__(self, qtype, begin_time=None, end_time=None,
                  timeperiod=None, unit='bps', limit=200,
                  peakflow_version="1.0", peakflow_release="5.5"):
@@ -139,8 +142,8 @@ class ArborFetcher(object):
                               params={'api_key': self.api_key},
                               data={'query': self.query.get_query()},
                               verify=self.verify_ssl_cert)
-        except requests.ConnectionError, e:
-            raise ArborFetcherError(e)
+        except requests.ConnectionError, err:
+            raise ArborFetcherError(err)
 
         # pylint: disable=no-member
         if r.status_code != requests.codes.ok:
@@ -150,8 +153,8 @@ class ArborFetcher(object):
             try:
                 self.xml_data = xml.fromstring(r.text)
             # pylint: disable=no-member
-            except xml.etree.ElementTree.ParseError, e:
-                raise ArborFetcherError("Bad response: {}".format(e))
+            except xml.etree.ElementTree.ParseError, err:
+                raise ArborFetcherError("Bad response: {}".format(err))
             self.response = r
 
     def to_timeseries(self):
@@ -184,7 +187,6 @@ class ArborFetcher(object):
         stime = self.xml_data.find('query/time').get('start_ascii')
         etime = self.xml_data.find('query/time').get('end_ascii')
         return {'begin_time': stime, 'end_time': etime}
-
 
 class TrafficParser(object):
     """Parse an Arbor traffic response into a list of Pond TimeSeries
@@ -253,11 +255,11 @@ class TrafficParser(object):
                 raw_points["out"][i]
             ])
 
-        return {
+        return TimeSeries({
             "name": name,
             "columns": ["time", "in", "out"],
             "points": points
-        }
+        })
 
     # pylint: disable=no-self-use
     def _get_points(self, item):
@@ -271,7 +273,6 @@ class TrafficParser(object):
             ]
 
         return points
-
 
 class TopTalkerParser(object):
     """Parse an Arbor gossip/top talkers response into a Pond TimeSeries
@@ -312,11 +313,18 @@ class TopTalkerParser(object):
 
             points.append([time, addr, dns_name, max_val])
 
-        return {
+        ts = TimeSeries({
             "name": "top talkers",
             "columns": ["time", "ip_addr", "dns_name", "max"],
             "points": points
-        }
+        })
+
+        # XXX(jdugan): hack until sort_by_time lands in pypond
+        #import pdb; pdb.set_trace()
+
+        ts._collection._event_list = sorted(ts.collection().events(), key=lambda x: x.timestamp())
+
+        return ts
 
     def _dns_lookup(self, addr):
         """Lookup IP address in DNS.  INTERNAL USE ONLY."""
