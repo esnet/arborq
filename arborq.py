@@ -313,16 +313,13 @@ class TopTalkerParser(object):
 
             points.append([time, addr, dns_name, max_val])
 
+        points.sort()
+
         ts = TimeSeries({
             "name": "top talkers",
             "columns": ["time", "ip_addr", "dns_name", "max"],
             "points": points
         })
-
-        # XXX(jdugan): hack until sort_by_time lands in pypond
-        #import pdb; pdb.set_trace()
-
-        ts._collection._event_list = sorted(ts.collection().events(), key=lambda x: x.timestamp())
 
         return ts
 
