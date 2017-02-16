@@ -10,7 +10,7 @@ install:
 - pip install -U pip
 - pip install pytest
 script:
-- pytest
+- py.test
 # - ./venv/bin/pip install coveralls
 after_success:
 # - ./venv/bin/coveralls
