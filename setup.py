@@ -1,7 +1,10 @@
-from setuptools import setup
-from codecs import open
+# pylint: disable=redefined-builtin, invalid-name
+
 from os import path
 import sys
+from codecs import open
+
+from setuptools import setup
 
 here = path.abspath(path.dirname(__file__))
 
