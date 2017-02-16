@@ -3,9 +3,10 @@
 """
 
 import cStringIO
-import pytz
 import socket
 import xml.etree.ElementTree as xml
+
+import pytz
 
 import requests
 
