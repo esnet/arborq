@@ -7,13 +7,14 @@ from .context import arborq
 
 DATADIR = os.path.join(os.path.dirname(__file__), "data")
 
+
 @pytest.fixture
 def traffic_xml():
     return xml.fromstring(
-            open(os.path.join(DATADIR, "traffic.xml")).read())
+        open(os.path.join(DATADIR, "traffic.xml")).read())
 
 
-def test_traffic_parser(traffic_xml):
+def test_traffic_parser(traffic_xml):  # pylint: disable=redefined-outer-name
     parser = arborq.TrafficParser(traffic_xml)
     timeseries_list = parser.parse()
 
@@ -35,10 +36,10 @@ def test_traffic_parser(traffic_xml):
 @pytest.fixture
 def top_talkers_xml():
     return xml.fromstring(
-            open(os.path.join(DATADIR, "toptalkers.xml")).read())
+        open(os.path.join(DATADIR, "toptalkers.xml")).read())
 
 
-def test_top_talker_parser(top_talkers_xml):
+def test_top_talker_parser(top_talkers_xml):  # pylint: disable=redefined-outer-name
     parser = arborq.TopTalkerParser(top_talkers_xml, redact=False, resolve_dns=False)
 
     ts = parser.parse()
@@ -58,7 +59,7 @@ def test_top_talker_parser(top_talkers_xml):
                                 18135902]
 
 
-def test_top_talker_parser_redacted(top_talkers_xml):
+def test_top_talker_parser_redacted(top_talkers_xml):  # pylint: disable=redefined-outer-name
     parser = arborq.TopTalkerParser(top_talkers_xml, redact=True, resolve_dns=False)
 
     ts = parser.parse()

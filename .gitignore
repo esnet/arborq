@@ -2,3 +2,4 @@
 venv
 tests/.cache
 .env
+arborq.egg*

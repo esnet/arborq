@@ -25,13 +25,13 @@ def credentials():
 
 
 @pytest.mark.skipif(have_credentials(), reason="Arbor credentials not provided")
-def test_traffic_fetch(credentials):
+def test_traffic_fetch(credentials):  # pylint: disable=redefined-outer-name
     arbor_url, arbor_key, arbor_id = credentials
 
     end = datetime.datetime.now()
     begin = end - datetime.timedelta(1)
 
-    q = arborq.ArborQuery("traffic", begin, end)
+    q = arborq.ArborQuery("traffic", begin, end)  # pylint: disable=invalid-name
 
     q.add_filter("customer", arbor_id)
     q.add_filter("customer", None)
@@ -52,11 +52,12 @@ def test_traffic_fetch(credentials):
         # for row in series["points"]:
         #     print row
 
+
 @pytest.mark.skipif(have_credentials(), reason="Arbor credentials not provided")
-def test_toptalker_fetch(credentials):
+def test_toptalker_fetch(credentials):  # pylint: disable=redefined-outer-name
     arbor_url, arbor_key, arbor_id = credentials
 
-    q = arborq.ArborQuery("gossip", timeperiod="1d")
+    q = arborq.ArborQuery("gossip", timeperiod="1d")  # pylint: disable=invalid-name
     q.add_filter("customer", arbor_id)
     q.add_filter("internal", None)
 
@@ -97,7 +98,7 @@ def test_toptalker_fetch(credentials):
 
 
 def test_fetch_connection_failure():
-    q = arborq.ArborQuery("gossip", timeperiod="1d")
+    q = arborq.ArborQuery("gossip", timeperiod="1d")  # pylint: disable=invalid-name
     q.add_filter("customer", 1)
 
     with pytest.raises(arborq.ArborFetcherError):
