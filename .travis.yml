@@ -6,6 +6,9 @@ python:
 - '3.5'
 - 3.5-dev
 - nightly
+install:
+- pip install -U pip
+- pip install pytest
 script:
 - pytest
 # - ./venv/bin/pip install coveralls
