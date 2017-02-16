@@ -2,11 +2,10 @@
 
 """
 
-from io import StringIO
+import cStringIO
+import pytz
 import socket
 import xml.etree.ElementTree as xml
-
-import pytz
 
 import requests
 
@@ -100,7 +99,7 @@ class ArborQuery(object):
         peakflow.append(self.xmlquery)
 
         tree = xml.ElementTree(peakflow)
-        xmlfile = StringIO()
+        xmlfile = cStringIO.StringIO()
         tree.write(xmlfile)
         output = xmlfile.getvalue()
         xmlfile.close()
@@ -140,7 +139,7 @@ class ArborFetcher(object):
                               params={'api_key': self.api_key},
                               data={'query': self.query.get_query()},
                               verify=self.verify_ssl_cert)
-        except requests.ConnectionError as e:
+        except requests.ConnectionError, e:
             raise ArborFetcherError(e)
 
         # pylint: disable=no-member
@@ -151,7 +150,7 @@ class ArborFetcher(object):
             try:
                 self.xml_data = xml.fromstring(r.text)
             # pylint: disable=no-member
-            except xml.etree.ElementTree.ParseError as e:
+            except xml.etree.ElementTree.ParseError, e:
                 raise ArborFetcherError("Bad response: {}".format(e))
             self.response = r
 
