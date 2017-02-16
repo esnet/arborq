@@ -18,7 +18,7 @@ TIMEPERIODS = {
 }
 
 
-class ArborQuery(object):
+class ArborQuery(object):  # pylint: disable=too-many-instance-attributes
     """Build XML queries for Arbor PeakFlow SP.
 
     :param qtype: the type of query, currently one of "traffic" or "gossip"
@@ -31,7 +31,7 @@ class ArborQuery(object):
     :param peakflow_release: release to send with the request, defaults to "5.5"
     """
 
-    def __init__(self, qtype, begin_time=None, end_time=None,
+    def __init__(self, qtype, begin_time=None, end_time=None,  # pylint: disable=too-many-arguments
                  timeperiod=None, unit='bps', limit=200,
                  peakflow_version="1.0", peakflow_release="5.5"):
         self.qtype = qtype
@@ -140,7 +140,7 @@ class ArborFetcher(object):
                               params={'api_key': self.api_key},
                               data={'query': self.query.get_query()},
                               verify=self.verify_ssl_cert)
-        except requests.ConnectionError, e:
+        except requests.ConnectionError as e:
             raise ArborFetcherError(e)
 
         # pylint: disable=no-member
@@ -151,7 +151,7 @@ class ArborFetcher(object):
             try:
                 self.xml_data = xml.fromstring(r.text)
             # pylint: disable=no-member
-            except xml.etree.ElementTree.ParseError, e:
+            except xml.etree.ElementTree.ParseError as e:
                 raise ArborFetcherError("Bad response: {}".format(e))
             self.response = r
 
@@ -165,7 +165,7 @@ class ArborFetcher(object):
         if qtype == "traffic":
             parser = TrafficParser(self.xml_data)
         elif qtype == "gossip":
-            parser = TopTalkerParser(self.xml_data)
+            parser = TopTalkerParser(self.xml_data)  # pylint: disable=redefined-variable-type
         else:
             raise ArborFetcherError("Unknown response type: {}".format(qtype))
 
