@@ -21,7 +21,7 @@ if sys.version_info[0] == 3 and sys.version_info[1] < 3:
 setup(
     name="arborq",
 
-    version="0.9.3",
+    version="0.9.4",
 
     description="A Python package to query Arbor PeakFlow SP devices.",
     long_description=long_description,
