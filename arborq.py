@@ -2,7 +2,7 @@
 
 """
 
-import cStringIO
+from io import StringIO
 import socket
 import xml.etree.ElementTree as xml
 
@@ -100,7 +100,7 @@ class ArborQuery(object):  # pylint: disable=too-many-instance-attributes
         peakflow.append(self.xmlquery)
 
         tree = xml.ElementTree(peakflow)
-        xmlfile = cStringIO.StringIO()
+        xmlfile = StringIO()
         tree.write(xmlfile)
         output = xmlfile.getvalue()
         xmlfile.close()
