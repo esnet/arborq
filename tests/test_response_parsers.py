@@ -7,6 +7,8 @@ from .context import arborq
 
 DATADIR = os.path.join(os.path.dirname(__file__), "data")
 
+# pylint: disable=superfluous-parens
+
 
 @pytest.fixture
 def traffic_xml():
@@ -18,7 +20,7 @@ def test_traffic_parser(traffic_xml):  # pylint: disable=redefined-outer-name
     parser = arborq.TrafficParser(traffic_xml)
     timeseries_list = parser.parse()
 
-    print len(timeseries_list)
+    print(len(timeseries_list))
 
     assert len(timeseries_list) == 7
 
