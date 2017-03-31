@@ -330,3 +330,45 @@ class TopTalkerParser(object):
             dns_name = "[No DNS Entry]"
 
         return dns_name
+
+class ManagedObjectInfoFetcher(object):
+    """Fetch data from an Arbor Peakflow system.
+
+    :param arbor_url: The URL for the Pearkflow system API.
+    :param api_key: The API key to authenticate to the Peakflow system.
+    :param limit: a filter to limit the returned data, eg: "tag:vpn"
+    :param verify_ssl_cert: Check the validity of the SSL cert?
+    """
+
+    # pylint: disable=redefined-builtin
+    def __init__(self, arbor_url, api_key, limit=None, verify_ssl_cert=False):
+        self.arbor_url = arbor_url
+        self.api_key = api_key
+        self.limit = limit
+        self.verify_ssl_cert = verify_ssl_cert
+
+        self.data = None
+
+        self.err = None
+        self.response = None
+
+    def fetch(self):
+        """Perform the fetch."""
+
+        url = "{}admin/managed_object".format(self.arbor_url)
+        params = {
+            "api_key": self.api_key,
+            "filter": self.limit,
+        }
+
+        response = requests.post(url, params=params, verify=self.verify_ssl_cert)
+
+        if response.status_code != requests.codes.ok:
+            raise ArborFetcherError(response.text)
+        else:
+            self.err = None
+
+        self.data = response.json()
+
+        return self.data
+
