@@ -54,10 +54,15 @@ setup(
 
     install_requires=[
         "requests",
-        "pytz"
+        "pytz",
+        "pypond==0.5.1",
     ],
 
     extras_require={
         "test": "pytest",
     },
+
+    dependency_links=[
+        "git+https://github.com/esnet/pypond.git@master#egg=pypond",
+    ]
 )

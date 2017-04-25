@@ -10,6 +10,8 @@ import pytz
 
 import requests
 
+from pypond.series import TimeSeries
+
 TIMEPERIODS = {
     '1d': 'day',
     '7d': 'week',
@@ -186,7 +188,6 @@ class ArborFetcher(object):
         etime = self.xml_data.find('query/time').get('end_ascii')
         return {'begin_time': stime, 'end_time': etime}
 
-
 class TrafficParser(object):
     """Parse an Arbor traffic response into a list of Pond TimeSeries
 
@@ -254,11 +255,11 @@ class TrafficParser(object):
                 raw_points["out"][i]
             ])
 
-        return {
+        return TimeSeries({
             "name": name,
             "columns": ["time", "in", "out"],
             "points": points
-        }
+        })
 
     # pylint: disable=no-self-use
     def _get_points(self, item):
@@ -272,7 +273,6 @@ class TrafficParser(object):
             ]
 
         return points
-
 
 class TopTalkerParser(object):
     """Parse an Arbor gossip/top talkers response into a Pond TimeSeries
@@ -313,11 +313,15 @@ class TopTalkerParser(object):
 
             points.append([time, addr, dns_name, max_val])
 
-        return {
+        points.sort()
+
+        ts = TimeSeries({
             "name": "top talkers",
             "columns": ["time", "ip_addr", "dns_name", "max"],
             "points": points
-        }
+        })
+
+        return ts
 
     def _dns_lookup(self, addr):
         """Lookup IP address in DNS.  INTERNAL USE ONLY."""
