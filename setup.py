@@ -54,7 +54,7 @@ setup(
 
     install_requires=[
         "requests",
-        "pytz",
+        "pytz==2016.4",
         "pypond==0.5.1",
     ],
 
