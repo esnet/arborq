@@ -67,7 +67,6 @@ def test_toptalker_fetch(credentials):  # pylint: disable=redefined-outer-name
     assert len([timeseries.events()]) > 0
 
     for point in timeseries.events():
-        print point.get("ip_addr"), point.get("dns_name")
         assert point.get("ip_addr").endswith(".xxx")
         assert point.get("dns_name").startswith("xxx") or point.get("dns_name") == "[No DNS Entry]"
 
