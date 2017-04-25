@@ -1,7 +1,10 @@
-from setuptools import setup
-from codecs import open
+# pylint: disable=redefined-builtin, invalid-name
+
 from os import path
 import sys
+from codecs import open
+
+from setuptools import setup
 
 here = path.abspath(path.dirname(__file__))
 
@@ -18,7 +21,7 @@ if sys.version_info[0] == 3 and sys.version_info[1] < 3:
 setup(
     name="arborq",
 
-    version="0.9.2-b1",
+    version="0.9.6",
 
     description="A Python package to query Arbor PeakFlow SP devices.",
     long_description=long_description,
@@ -30,13 +33,19 @@ setup(
     license="BSD",
 
     classifiers=[
-        "Development Status :: 5 - Production / Stable",
+        "Development Status :: 5 - Production/Stable",
 
         "Intended Audience :: Developers",
 
         "Topic :: System :: Networking :: Monitoring",
 
         "Programming Language :: Python :: 2.7",
+
+        "Programming Language :: Python :: 3.3",
+
+        "Programming Language :: Python :: 3.4",
+
+        "Programming Language :: Python :: 3.5",
     ],
 
     keywords="network measurement",
@@ -46,7 +55,7 @@ setup(
     install_requires=[
         "requests",
         "pytz",
-        #"pypond", # XXX: TODO Fix this install, possibly by just publishing pypond
+        "pypond==0.5.1",
     ],
 
     extras_require={

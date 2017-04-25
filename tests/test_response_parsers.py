@@ -26,18 +26,21 @@ def is_chronological(ts):
 
     return True
 
+# pylint: disable=superfluous-parens
+
 @pytest.fixture
 def traffic_xml():
     """Load test traffic data."""
-    return xml.fromstring(open(os.path.join(DATADIR, "traffic.xml")).read())
+    return xml.fromstring(
+        open(os.path.join(DATADIR, "traffic.xml")).read())
 
 
-def test_traffic_parser(traffic_xml):
+def test_traffic_parser(traffic_xml):  # pylint: disable=redefined-outer-name
     """Test traffic parser."""
     parser = arborq.TrafficParser(traffic_xml)
     timeseries_list = parser.parse()
 
-    print len(timeseries_list)
+    print(len(timeseries_list))
 
     assert len(timeseries_list) == 7
 
@@ -61,15 +64,16 @@ def test_traffic_parser(traffic_xml):
     assert last_point.get("in") == 1127157376
     assert last_point.get("out") == 7807356416
 
-    assert is_chronological(ts) == True
+    assert ts.collection().is_chronological() == True
 
 @pytest.fixture
 def top_talkers_xml():
     """Load top talkers test data."""
-    return xml.fromstring(open(os.path.join(DATADIR, "toptalkers.xml")).read())
+    return xml.fromstring(
+        open(os.path.join(DATADIR, "toptalkers.xml")).read())
 
 
-def test_top_talker_parser(top_talkers_xml):
+def test_top_talker_parser(top_talkers_xml):  # pylint: disable=redefined-outer-name
     """Test the top talker parser."""
     parser = arborq.TopTalkerParser(top_talkers_xml, redact=False, resolve_dns=False)
 
@@ -93,10 +97,10 @@ def test_top_talker_parser(top_talkers_xml):
     assert last_point.get("dns_name") == "[DNS resolution not enabled]"
     assert last_point.get("max") == 19755360
 
-    assert is_chronological(ts) == True
+    assert ts.collection().is_chronological() == True
 
 
-def test_top_talker_parser_redacted(top_talkers_xml):
+def test_top_talker_parser_redacted(top_talkers_xml):  # pylint: disable=redefined-outer-name
     """Test redacting IP address information."""
     parser = arborq.TopTalkerParser(top_talkers_xml, redact=True, resolve_dns=False)
 

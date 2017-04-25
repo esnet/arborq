@@ -2,10 +2,11 @@
 
 """
 
-import cStringIO
-import pytz
+from io import BytesIO
 import socket
 import xml.etree.ElementTree as xml
+
+import pytz
 
 import requests
 
@@ -19,7 +20,7 @@ TIMEPERIODS = {
 }
 
 
-class ArborQuery(object):
+class ArborQuery(object):  # pylint: disable=too-many-instance-attributes
     """Build XML queries for Arbor PeakFlow SP.
 
     :param qtype: the type of query, currently one of "traffic" or "gossip"
@@ -32,8 +33,7 @@ class ArborQuery(object):
     :param peakflow_release: release to send with the request, defaults to "5.5"
     """
 
-    # pylint: disable=too-many-arguments
-    def __init__(self, qtype, begin_time=None, end_time=None,
+    def __init__(self, qtype, begin_time=None, end_time=None,  # pylint: disable=too-many-arguments
                  timeperiod=None, unit='bps', limit=200,
                  peakflow_version="1.0", peakflow_release="5.5"):
         self.qtype = qtype
@@ -102,7 +102,7 @@ class ArborQuery(object):
         peakflow.append(self.xmlquery)
 
         tree = xml.ElementTree(peakflow)
-        xmlfile = cStringIO.StringIO()
+        xmlfile = BytesIO()
         tree.write(xmlfile)
         output = xmlfile.getvalue()
         xmlfile.close()
@@ -142,8 +142,8 @@ class ArborFetcher(object):
                               params={'api_key': self.api_key},
                               data={'query': self.query.get_query()},
                               verify=self.verify_ssl_cert)
-        except requests.ConnectionError, err:
-            raise ArborFetcherError(err)
+        except requests.ConnectionError as e:
+            raise ArborFetcherError(e)
 
         # pylint: disable=no-member
         if r.status_code != requests.codes.ok:
@@ -153,8 +153,8 @@ class ArborFetcher(object):
             try:
                 self.xml_data = xml.fromstring(r.text)
             # pylint: disable=no-member
-            except xml.etree.ElementTree.ParseError, err:
-                raise ArborFetcherError("Bad response: {}".format(err))
+            except xml.etree.ElementTree.ParseError as e:
+                raise ArborFetcherError("Bad response: {}".format(e))
             self.response = r
 
     def to_timeseries(self):
@@ -167,7 +167,7 @@ class ArborFetcher(object):
         if qtype == "traffic":
             parser = TrafficParser(self.xml_data)
         elif qtype == "gossip":
-            parser = TopTalkerParser(self.xml_data)
+            parser = TopTalkerParser(self.xml_data)  # pylint: disable=redefined-variable-type
         else:
             raise ArborFetcherError("Unknown response type: {}".format(qtype))
 
@@ -335,3 +335,45 @@ class TopTalkerParser(object):
             dns_name = "[No DNS Entry]"
 
         return dns_name
+
+class ManagedObjectInfoFetcher(object):
+    """Fetch data from an Arbor Peakflow system.
+
+    :param arbor_url: The URL for the Pearkflow system API.
+    :param api_key: The API key to authenticate to the Peakflow system.
+    :param limit: a filter to limit the returned data, eg: "tag:vpn"
+    :param verify_ssl_cert: Check the validity of the SSL cert?
+    """
+
+    # pylint: disable=redefined-builtin
+    def __init__(self, arbor_url, api_key, limit=None, verify_ssl_cert=False):
+        self.arbor_url = arbor_url
+        self.api_key = api_key
+        self.limit = limit
+        self.verify_ssl_cert = verify_ssl_cert
+
+        self.data = None
+
+        self.err = None
+        self.response = None
+
+    def fetch(self):
+        """Perform the fetch."""
+
+        url = "{}admin/managed_object".format(self.arbor_url)
+        params = {
+            "api_key": self.api_key,
+            "filter": self.limit,
+        }
+
+        response = requests.post(url, params=params, verify=self.verify_ssl_cert)
+
+        if response.status_code != requests.codes.ok:
+            raise ArborFetcherError(response.text)
+        else:
+            self.err = None
+
+        self.data = response.json()
+
+        return self.data
+

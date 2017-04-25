@@ -2,3 +2,7 @@
 venv
 tests/.cache
 .env
+arborq.egg*
+.cache
+.coverage
+dist/*
