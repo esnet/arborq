@@ -239,9 +239,12 @@ class TrafficParser(object):
         else:
             name = item.get("name")
 
+        # if we have an AS based report, augment the name with the ASN
         if self.filter2 and self.filter2.startswith("as_"):
-            # if we have an AS based report, augment the name with the ASN
             asn = item.get("id").split("|")[1]
+            name += "|AS%s" % (asn, )
+        elif self.filter1 and self.filter1.startswith("as_"):
+            asn = item.get("id")
             name += "|AS%s" % (asn, )
 
         raw_points = self._get_points(item)
